@@ -42,6 +42,10 @@ This project follows **Clean Architecture** principles to ensure maintainability
    ```bash
    npm install
    ```
+3. Copy the `.env.example` file to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
 
 ### Development
 
