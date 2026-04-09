@@ -63,7 +63,3 @@ Run unit and integration tests:
 ```bash
 npm run test
 ```
-
-## 📄 License
-
-MIT
