@@ -1,16 +1,23 @@
 import type { IExplorerRepository } from '../../src/domain/repositories/IExplorerRepository';
-import type { ExplorerFolder, ExplorerEntry, CreateItemDto, UpdateItemDto } from '../../src/domain/models';
+import type { ExplorerFolder, ExplorerEntry, CreateItemDto, UpdateItemDto, PaginatedResponse } from '../../src/domain/models';
 
 const mockFolders: ExplorerFolder[] = [
-  { id: '1', name: 'Documents', type: 'folder', parentId: 'root', path: '/Documents', children: [
-    { id: '1-1', name: 'Work', type: 'folder', parentId: '1', path: '/Documents/Work', children: [
-      { id: '1-1-1', name: 'Resume.pdf', type: 'file', parentId: '1-1', path: '/Documents/Work/Resume.pdf' } as any,
-      { id: '1-1-2', name: 'Project_Alpha', type: 'folder', parentId: '1-1', path: '/Documents/Work/Project_Alpha', children: [] },
-    ] },
-    { id: '1-2', name: 'Private', type: 'folder', parentId: '1', path: '/Documents/Private', children: [] },
-  ] },
   {
-    id: '2', name: 'Images', type: 'folder', parentId: 'root', path: '/Images', children: [
+    id: '1', name: 'Documents', type: 'folder', parentId: 'root', path: '/Documents',
+    children: [
+      {
+        id: '1-1', name: 'Work', type: 'folder', parentId: '1', path: '/Documents/Work',
+        children: [
+          { id: '1-1-1', name: 'Resume.pdf', type: 'file', parentId: '1-1', path: '/Documents/Work/Resume.pdf' } as any,
+          { id: '1-1-2', name: 'Project_Alpha', type: 'folder', parentId: '1-1', path: '/Documents/Work/Project_Alpha', children: [] },
+        ]
+      },
+      { id: '1-2', name: 'Private', type: 'folder', parentId: '1', path: '/Documents/Private', children: [] },
+    ]
+  },
+  {
+    id: '2', name: 'Images', type: 'folder', parentId: 'root', path: '/Images',
+    children: [
       { id: '2-1', name: 'Vacation', type: 'folder', parentId: '2', path: '/Images/Vacation', children: [] },
       { id: '2-2', name: 'Profile.png', type: 'file', parentId: '2', path: '/Images/Profile.png' } as any,
     ]
@@ -18,12 +25,25 @@ const mockFolders: ExplorerFolder[] = [
   { id: '3', name: 'Videos', type: 'folder', parentId: 'root', path: '/Videos', children: [] },
 ];
 
-const allEntries: ExplorerEntry[] = [...mockFolders];
+function paginated<T>(data: T[]): PaginatedResponse<T> {
+  return { data, meta: { limit: 1000 } };
+}
+
+function flatEntries(list: ExplorerEntry[]): ExplorerEntry[] {
+  const result: ExplorerEntry[] = [];
+  for (const entry of list) {
+    result.push(entry);
+    if (entry.type === 'folder' && (entry as ExplorerFolder).children) {
+      result.push(...flatEntries((entry as ExplorerFolder).children!));
+    }
+  }
+  return result;
+}
 
 export class MockExplorerRepository implements IExplorerRepository {
-  async getFolderChildren(folderId: string): Promise<ExplorerEntry[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    if (folderId === 'root') return mockFolders;
+  async getFolderChildren(folderId: string): Promise<PaginatedResponse<ExplorerEntry>> {
+    await new Promise(resolve => setTimeout(resolve, 10));
+    if (folderId === 'root') return paginated(mockFolders);
 
     const findFolder = (list: ExplorerEntry[]): ExplorerFolder | undefined => {
       for (const entry of list) {
@@ -36,28 +56,17 @@ export class MockExplorerRepository implements IExplorerRepository {
       return undefined;
     };
 
-    return findFolder(mockFolders)?.children || [];
+    return paginated(findFolder(mockFolders)?.children || []);
   }
 
-  async searchEntries(query: string): Promise<ExplorerEntry[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const results: ExplorerEntry[] = [];
-    const traverse = (entries: ExplorerEntry[]) => {
-      for (const entry of entries) {
-        if (entry.name.toLowerCase().includes(query.toLowerCase())) {
-          results.push(entry);
-        }
-        if (entry.type === 'folder' && (entry as ExplorerFolder).children) {
-          traverse((entry as ExplorerFolder).children!);
-        }
-      }
-    };
-    traverse(allEntries);
-    return results;
+  async searchEntries(query: string): Promise<PaginatedResponse<ExplorerEntry>> {
+    await new Promise(resolve => setTimeout(resolve, 10));
+    const all = flatEntries(mockFolders);
+    const results = all.filter(e => e.name.toLowerCase().includes(query.toLowerCase()));
+    return paginated(results);
   }
 
   async createEntry(data: CreateItemDto): Promise<ExplorerEntry> {
-    await new Promise(resolve => setTimeout(resolve, 300));
     const base = {
       id: Math.random().toString(36).slice(2, 9),
       name: data.name,
@@ -70,7 +79,6 @@ export class MockExplorerRepository implements IExplorerRepository {
   }
 
   async updateEntry(id: string, data: UpdateItemDto): Promise<ExplorerEntry> {
-    await new Promise(resolve => setTimeout(resolve, 300));
     return {
       id,
       name: data.name || 'Updated',
@@ -81,7 +89,6 @@ export class MockExplorerRepository implements IExplorerRepository {
   }
 
   async deleteEntry(_id: string): Promise<boolean> {
-    await new Promise(resolve => setTimeout(resolve, 300));
     return true;
   }
 }
