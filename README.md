@@ -6,8 +6,8 @@ A modern, high-performance web-based file explorer built with Vue 3, TypeScript,
 
 - **Intuitive Navigation**: Seamlessly browse through folder structures.
 - **File Management**: Create, rename, and delete files/folders (integrated with Backend API).
-- **Search & Filter**: Real-time searching with sorting capabilities (Name, Kind, Date).
-- **Infinite Scrolling**: Optimized list viewing with auto-load more pagination.
+- **Search & Filter**: Real-time searching with sorting capabilities (Name, Kind).
+- **Infinite Scrolling**: Optimized list viewing with auto-load more pagination using Intersection Observer.
 - **Rich UI/UX**: Premium design with glassmorphism, smooth animations, and responsive layout.
 
 ## 🛠️ Tech Stack
@@ -15,25 +15,19 @@ A modern, high-performance web-based file explorer built with Vue 3, TypeScript,
 - **Framework**: [Vue 3](https://vuejs.org/) (Composition API with `<script setup>`)
 - **Build Tool**: [Vite](https://vitejs.dev/)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: Vanilla CSS with modern features (Variables, Grids, Flexbox)
-- **State Management**: Vue Composables (Clean Architecture approach)
-- **Testing**: Vitest for Unit and Integration tests
+- **Styling**: Vanilla CSS (Variables, Grids, Flexbox)
+- **Testing**: [Vitest](https://vitest.dev/) for Unit and Integration testing, [Playwright](https://playwright.dev/) for E2E.
 
 ## 🏗️ Architecture
 
 This project follows **Clean Architecture** principles to ensure maintainability and testability:
 
-- **Domain**: Contains business logic, entities, and repository interfaces.
-- **Infrastructure**: Handles external concerns like API calls and DTO mapping.
-- **Application**: Coordinates use cases and service logic.
-- **Presentation**: UI components, views, and state management (Composables).
+- **Domain**: Pure business logic, entities, and repository interfaces.
+- **Infrastructure**: Data access (API clients, DTO mappers, and Repository implementations).
+- **Application**: Service layer that coordinates business rules.
+- **Presentation**: UI components, views, and stateful logic via Composables.
 
 ## 📥 Getting Started
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18+)
-- [npm](https://www.npmjs.com/) or [Bun](https://bun.sh/)
 
 ### Installation
 
@@ -42,7 +36,7 @@ This project follows **Clean Architecture** principles to ensure maintainability
    ```bash
    npm install
    ```
-3. Copy the `.env.example` file to `.env`:
+3. Configure environment:
    ```bash
    cp .env.example .env
    ```
@@ -61,9 +55,32 @@ Build for production:
 npm run build
 ```
 
-### Testing
+## 🧪 Testing
 
-Run unit and integration tests:
+The project uses a robust testing suite covering unit to integration levels.
+
+### Unit & Integration Tests
+Run all tests once:
 ```bash
-npm run test
+npm test
 ```
+
+Run in watch mode:
+```bash
+npm run test:unit
+```
+
+### E2E Tests
+```bash
+npm run test:e2e
+```
+
+> [!NOTE]
+> Testing requires global stubs for browser APIs (like `IntersectionObserver`) which are configured in `tests/setup.ts`.
+
+## ✨ Design Aesthetics
+
+- **Glassmorphism**: Subtle translucent backgrounds with blur effects.
+- **Micro-animations**: Smooth transitions for folder opening and item selection.
+- **Responsive Grid**: Fluid layout that adapts to all screen sizes.
+- **Premium Typography**: Modern fonts for a high-end feel.
