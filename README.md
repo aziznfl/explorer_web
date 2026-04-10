@@ -62,7 +62,7 @@ The project uses a robust testing suite covering unit to integration levels.
 ### Unit & Integration Tests
 Run all tests once:
 ```bash
-npm test
+npm run test
 ```
 
 Run in watch mode:
